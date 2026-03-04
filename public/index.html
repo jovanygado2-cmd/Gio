@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Video Downloader</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>YouTube Video Downloader</h1>
+      <p>Paste a YouTube video URL and download it in one click.</p>
+
+      <form id="download-form">
+        <label for="youtube-url" class="sr-only">YouTube URL</label>
+        <input
+          id="youtube-url"
+          type="url"
+          name="url"
+          placeholder="https://www.youtube.com/watch?v=..."
+          required
+        />
+        <button type="submit">Download Video</button>
+      </form>
+
+      <p id="message" aria-live="polite"></p>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
