@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  REP
+}
+
+enum LeadStatus {
+  NEW
+  QUALIFIED
+  NURTURING
+  WON
+  LOST
+}
+
+enum DealStage {
+  LEAD
+  DISCOVERY
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(REP)
+  leads        Lead[]
+  deals        Deal[]
+  tasks        Task[]
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Company {
+  id          String    @id @default(cuid())
+  name        String
+  domain      String?
+  size        String?
+  industry    String?
+  contacts    Contact[]
+  leads       Lead[]
+  deals       Deal[]
+  notes       Note[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Contact {
+  id          String    @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?
+  phone       String?
+  title       String?
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  leads       Lead[]
+  deals       Deal[]
+  notes       Note[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Lead {
+  id                String      @id @default(cuid())
+  name              String
+  email             String?
+  phone             String?
+  source            String
+  status            LeadStatus  @default(NEW)
+  score             Int         @default(50)
+  valuePotential    Decimal?    @db.Decimal(12, 2)
+  followUpAt        DateTime?
+  lastContactedAt   DateTime?
+  companyId         String?
+  contactId         String?
+  ownerId           String?
+  company           Company?    @relation(fields: [companyId], references: [id])
+  contact           Contact?    @relation(fields: [contactId], references: [id])
+  owner             User?       @relation(fields: [ownerId], references: [id])
+  deals             Deal[]
+  tasks             Task[]
+  notes             Note[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([source])
+  @@index([followUpAt])
+}
+
+model Deal {
+  id            String      @id @default(cuid())
+  name          String
+  stage         DealStage   @default(LEAD)
+  amount        Decimal     @db.Decimal(12, 2)
+  expectedClose DateTime?
+  wonAt         DateTime?
+  lostReason    String?
+  leadId        String?
+  contactId     String?
+  companyId     String?
+  ownerId       String?
+  lead          Lead?       @relation(fields: [leadId], references: [id])
+  contact       Contact?    @relation(fields: [contactId], references: [id])
+  company       Company?    @relation(fields: [companyId], references: [id])
+  owner         User?       @relation(fields: [ownerId], references: [id])
+  tasks         Task[]
+  notes         Note[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([stage])
+  @@index([expectedClose])
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  dueAt       DateTime
+  status      TaskStatus  @default(OPEN)
+  priority    String      @default("medium")
+  ownerId     String?
+  leadId      String?
+  dealId      String?
+  owner       User?       @relation(fields: [ownerId], references: [id])
+  lead        Lead?       @relation(fields: [leadId], references: [id])
+  deal        Deal?       @relation(fields: [dealId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([status, dueAt])
+}
+
+model Note {
+  id          String    @id @default(cuid())
+  body        String
+  leadId      String?
+  dealId      String?
+  contactId   String?
+  companyId   String?
+  lead        Lead?     @relation(fields: [leadId], references: [id])
+  deal        Deal?     @relation(fields: [dealId], references: [id])
+  contact     Contact?  @relation(fields: [contactId], references: [id])
+  company     Company?  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Activity {
+  id          String    @id @default(cuid())
+  message     String
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
+}
