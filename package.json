@@ -1,5 +1,5 @@
 {
-  "name": "gio-crm",
+  "name": "upsidelens",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -7,25 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/client": "5.20.0",
-    "bcryptjs": "2.4.3",
     "clsx": "2.1.1",
-    "date-fns": "4.1.0",
-    "lucide-react": "0.460.0",
     "next": "14.2.15",
-    "next-auth": "5.0.0-beta.22",
     "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "zod": "3.23.8"
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/bcryptjs": "2.4.6",
     "@types/node": "22.7.7",
     "@types/react": "18.3.11",
     "@types/react-dom": "18.3.1",
@@ -33,12 +23,7 @@
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.15",
     "postcss": "8.4.47",
-    "prisma": "5.20.0",
     "tailwindcss": "3.4.14",
-    "tsx": "4.19.1",
     "typescript": "5.6.3"
-  },
-  "prisma": {
-    "seed": "npm run prisma:seed"
   }
 }

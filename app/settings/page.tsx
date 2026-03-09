@@ -1,29 +1,30 @@
-import { Role } from "@prisma/client";
+"use client";
 
-import { AppShell } from "@/components/app-shell";
-import { requireRole } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
+import { ScoringConfig } from "@/lib/types";
 
-export default async function SettingsPage() {
-  await requireRole([Role.OWNER, Role.MANAGER]);
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
+export default function SettingsPage() {
+  const [weights, setWeights] = useState<ScoringConfig | null>(null);
+
+  useEffect(() => {
+    api.scoringConfig().then(setWeights);
+  }, []);
+
+  if (!weights) return <p>Loading...</p>;
 
   return (
-    <AppShell>
-      <div className="card">
-        <h3 className="mb-3 font-semibold">Team & roles</h3>
-        <p className="mb-4 text-sm text-slate-500">Role-based access is enforced for sensitive pages like settings.</p>
-        <ul className="space-y-2 text-sm">
-          {users.map((user) => (
-            <li className="flex items-center justify-between rounded-lg border p-2" key={user.id}>
-              <span>
-                {user.name} ({user.email})
-              </span>
-              <span className="rounded bg-slate-100 px-2 py-1">{user.role}</span>
-            </li>
-          ))}
-        </ul>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Scoring Settings</h1>
+      <p className="text-sm text-slate-600">Adjust scoring model weights. Formula = weighted positive factors - risk penalty.</p>
+      <div className="card space-y-2">
+        {(Object.keys(weights) as Array<keyof ScoringConfig>).map((k) => (
+          <label key={k} className="block text-sm">{k}
+            <input className="mt-1 w-full rounded border p-2" type="number" step="0.01" value={weights[k]} onChange={(e) => setWeights({ ...weights, [k]: Number(e.target.value) })} />
+          </label>
+        ))}
+        <button className="rounded bg-indigo-700 px-3 py-2 text-white" onClick={async () => setWeights(await api.updateScoring(weights))}>Save Weights</button>
       </div>
-    </AppShell>
+    </div>
   );
 }
